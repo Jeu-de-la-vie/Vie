@@ -1,6 +1,6 @@
 from random import randint
 
-# Essayer de faire un code simple mais qui fonctionne
+# J'ai essayé de faire un code simple mais qui fonctionne
 # Jeu de la vie
 
 class Cellule :
@@ -40,15 +40,7 @@ class Cellule :
                     self.vois.append(rang_vois)
             b = b + 1
         return self.vois
-    """
-    def etat(self):
-        pass
-    def tabcell(self):
-        tab = []
-        for cell in Cellule :
-            tab.append(cell)
-        return tab
-    """
+ 
 def pprint(tab):
     for el in tab:
         print(el)
