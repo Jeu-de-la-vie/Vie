@@ -1,0 +1,128 @@
+from random import randint
+from random import shuffle
+import tkinter as tk
+import time
+
+class Grille:
+    def __init__(self, cote):
+        self.cote = cote
+        self.taille = cote * cote
+
+    def generer(self):
+        self.matrice = [[0 for _ in range(self.cote)] for _ in range(self.cote)]
+        return self.matrice
+
+    def afficher(self):
+        for ligne in self.matrice:
+            print(ligne)
+
+    def modifier(self, liste):
+        self.generer()
+        for element in liste:
+            self.matrice[element[0]][element[1]] = 1
+        return self.matrice
+
+
+class Cellule:
+    def __init__(self, x, y, grille):
+        self.x = x
+        self.y = y
+        self.etat = grille.matrice[x][y]
+        self.rang = (x, y)
+
+    def donner_voisines(self):
+        self.voisines = []
+        a = -1
+        for i in range(3):
+            b = -1
+            for j in range(3):
+                voisine = (self.x + a, self.y + b)
+                if voisine[0] in range(0, grille.cote):
+                    if voisine[1] in range(0, grille.cote):
+                        if voisine != (self.x, self.y):
+                            self.voisines.append(voisine)
+                b = b + 1
+            a = a + 1
+        return self.voisines
+
+#début modifs
+def afficher_grille_graphique(grille, canvas):
+    canvas.delete("all")  #effacer le contenu précédent du canvas
+
+    #dessiner les lignes horizontales
+    for i in range(1, grille.cote):
+        canvas.create_line(0, i * 20, grille.cote * 20, i * 20)
+
+    #dessiner les lignes verticales
+    for j in range(1, grille.cote):
+        canvas.create_line(j * 20, 0, j * 20, grille.cote * 20)
+
+    for i in range(grille.cote):
+        for j in range(grille.cote):
+            x0, y0 = j * 20, i * 20
+            x1, y1 = x0 + 20, y0 + 20
+            if grille.matrice[i][j] == 1:
+                canvas.create_rectangle(x0, y0, x1, y1, fill="black")
+
+
+def jouer_tour():
+    global grille, vivantes
+#fin modifs
+    stock = []      #future liste de cellules vivantes
+    # on recherche des voisines de chaque cellule vivante
+    for cellule in vivantes :
+        cellule = Cellule(cellule[0],cellule[1],grille)
+        cellule_voisines = cellule.donner_voisines()
+        #print(cellule_voisines)
+    # on détermine si les cellules vivante à t sont vivantes à t+1
+        cnt_cellule = 0     #nombre de voisines vivantes
+        for voisine in cellule_voisines :
+            voisine = Cellule(voisine[0],voisine[1],grille)
+            if voisine.etat == 1:
+                cnt_cellule = cnt_cellule + 1
+            voisine_entourage = voisine.donner_voisines()
+            #print(voisine_entourage)
+            cnt_voisine = 0
+            for voisin in voisine_entourage :
+                voisin = Cellule(voisin[0],voisin[1],grille)
+                if voisin.etat == 1:
+                    cnt_voisine = cnt_voisine + 1
+            #print("Voisines de", voisine.rang, "vivantes : ", cnt_voisine)
+            if cnt_voisine == 3 and voisine.etat == 0 :
+                if voisine.rang not in stock :
+                    stock.append(voisine.rang)
+            elif cnt_voisine in [2,3] and voisine.etat == 1 :
+                if voisine.rang not in stock :
+                    stock.append(voisine.rang)
+        #print("Voisines de", cellule.rang, "vivantes : ", cnt_cellule)      
+        if cnt_cellule in [2,3] :
+            if cellule.rang not in stock:
+                stock.append(cellule.rang)
+    vivantes = stock
+    print(len(vivantes), "cellules vivantes au prochain tour")
+    print(vivantes)
+    grille.modifier(vivantes)
+#début modifs    
+    afficher_grille_graphique(grille, canvas)
+    root.after(1000, jouer_tour)  # Attendre 1 seconde entre les tours pour mieux visualiser
+
+grille = Grille(25)
+grille.generer()
+
+nombre = int(input("Nombre de cellules vivantes : "))
+coordonnees = [(i, j) for i in range(grille.cote) for j in range(grille.cote)]
+shuffle(coordonnees)
+vivantes = coordonnees[:nombre]
+
+#(
+print(vivantes)
+grille.modifier(vivantes)
+#)
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=grille.cote * 20, height=grille.cote * 20)
+canvas.pack()
+
+jouer_tour()  #lancer le premier tour
+root.mainloop()
+#fin modifs
