@@ -1,10 +1,5 @@
 from grille_cellule_regles import Grille, Cellule, jeu_de_la_vie
 
-def test_carre(grille):
-    c1 = Cellule(4,4,grille)
-    voisines = c1.donner_voisines(grille)
-    return voisines + [c1.rang]
-
 
 def test_voisines():
     grille = Grille(25)
